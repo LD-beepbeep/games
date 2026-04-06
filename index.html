@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html data-theme="dark" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07070e" id="meta-theme">
+<title>LD · Game Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ═══════ THEME TOKENS ═══════ */
+:root {
+  --bg:#f2f1f8;--bg1:#ffffff;--bg2:#f7f6fd;--bg3:#edeaf8;--bg4:#e2ddF5;
+  --bdr:rgba(0,0,0,.07);--bdr2:rgba(109,40,217,.25);
+  --t1:#0d0b1a;--t2:#56527a;--t3:#9997b8;
+  --a:#6d28d9;--aL:#7c3aed;--aX:#a78bfa;
+  --cy:#0891b2;--g:#059669;--r:#e11d48;--gold:#d97706;
+  --csh:0 2px 12px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --cshH:0 12px 48px rgba(109,40,217,.18),0 4px 16px rgba(0,0,0,.1);
+}
+[data-theme="dark"] {
+  --bg:#07070e;--bg1:#0e0e1e;--bg2:#131328;--bg3:#1a1a34;--bg4:#22223e;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(139,92,246,.4);
+  --t1:#eeeeff;--t2:#7070a0;--t3:#38385a;
+  --a:#7c3aed;--aL:#9333ea;--aX:#c084fc;
+  --cy:#06b6d4;--g:#10b981;--r:#f43f5e;--gold:#f59e0b;
+  --csh:0 4px 24px rgba(0,0,0,.5);
+  --cshH:0 20px 64px rgba(124,58,237,.3),0 0 0 1px rgba(124,58,237,.15);
+}
+/* ═══════ RESET ═══════ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);color:var(--t1);
+  min-height:100%;overflow-x:hidden;
+  transition:background .4s,color .3s;
+}
+*{transition:background-color .3s,border-color .3s,color .25s,box-shadow .25s}
+img,button,a,select,.card,.pf-btn,.icon-btn{transition-property:transform,opacity,box-shadow,border-color,background-color!important}
+::selection{background:var(--a);color:#fff}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+a{text-decoration:none;color:inherit}
+
+/* ═══════ HEADER ═══════ */
+#hdr{
+  position:sticky;top:0;z-index:300;
+  background:rgba(7,7,14,.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr);
+}
+[data-theme="light"] #hdr{background:rgba(242,241,248,.92)}
+.hdr-row{display:flex;align-items:center;gap:10px;padding:12px 16px;max-width:1400px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-badge{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--a),var(--aX));
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;
+  box-shadow:0 2px 12px rgba(109,40,217,.4);
+}
+.logo-name{font-size:15px;font-weight:800;letter-spacing:-.3px}
+.logo-sub{font-size:9px;letter-spacing:2px;color:var(--t3);font-family:'JetBrains Mono',monospace;text-transform:uppercase}
+.hdr-sp{flex:1}
+.hdr-acts{display:flex;align-items:center;gap:6px}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--t2);font-size:14px;
+  background:var(--bg2);border:1.5px solid var(--bdr);
+}
+.icon-btn:hover,.icon-btn:active{background:var(--bg3);color:var(--t1)}
+.icon-btn.on{background:rgba(109,40,217,.15);border-color:var(--bdr2);color:var(--aX)}
+
+/* ═══════ SEARCH ═══════ */
+.srch-wrap{padding:0 16px 12px;max-width:1400px;margin:0 auto}
+.srch{position:relative}
+.srch i.si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;pointer-events:none}
+.srch input{
+  width:100%;padding:10px 38px 10px 38px;border-radius:12px;
+  background:var(--bg2);border:1.5px solid var(--bdr);
+  color:var(--t1);font-family:inherit;font-size:15px;font-weight:600;
+  outline:none;
+}
+.srch input::placeholder{color:var(--t3);font-weight:500}
+.srch input:focus{background:var(--bg1);border-color:var(--bdr2);box-shadow:0 0 0 4px rgba(109,40,217,.1)}
+.srch-x{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:13px;padding:4px;display:none}
+.srch-x.show{display:block}
+
+/* ═══════ STATS ═══════ */
+#stats-row{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 16px 14px;max-width:1400px;margin:0 auto}
+#stats-row::-webkit-scrollbar{display:none}
+.sc{
+  flex-shrink:0;min-width:110px;
+  background:var(--bg1);border:1.5px solid var(--bdr);border-radius:14px;
+  padding:12px 14px;box-shadow:var(--csh);cursor:pointer;
+}
+.sc:active{transform:scale(.97)}
+.sc-v{font-size:26px;font-weight:800;line-height:1;color:var(--t1);font-family:'JetBrains Mono',monospace;margin-bottom:3px}
+.sc-l{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.3px}
+.sc-bar{height:3px;border-radius:2px;margin-top:9px;background:var(--bg3);overflow:hidden}
+.sc-fill{height:100%;border-radius:2px}
+
+/* ═══════ PLATFORM FILTER ═══════ */
+#pf-wrap{overflow-x:auto;scrollbar-width:none;padding:0 16px 14px;max-width:1400px;margin:0 auto}
+#pf-wrap::-webkit-scrollbar{display:none}
+#pf-inner{display:flex;gap:6px;width:max-content}
+.pf-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;
+  border:1.5px solid var(--bdr);background:var(--bg1);
+  color:var(--t2);font-size:12px;font-weight:700;letter-spacing:.3px;
+  white-space:nowrap;box-shadow:var(--csh);
+}
+.pf-btn:active{transform:scale(.96)}
+.pf-btn.on{background:var(--a);border-color:var(--a);color:#fff;box-shadow:0 4px 16px rgba(109,40,217,.35)}
+.pf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ═══════ TOOLBAR ═══════ */
+#toolbar{display:flex;align-items:center;gap:8px;padding:0 16px 12px;max-width:1400px;margin:0 auto}
+.tb-info{font-size:12px;font-weight:600;color:var(--t3);margin-right:auto;font-family:'JetBrains Mono',monospace}
+.tb-info strong{color:var(--t2)}
+.sort-sel{
+  padding:7px 28px 7px 10px;border-radius:10px;
+  background:var(--bg1);border:1.5px solid var(--bdr);
+  color:var(--t1);font-family:inherit;font-size:12px;font-weight:700;
+  outline:none;appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M5 6L0 0h10z' fill='%239997b8'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;
+  box-shadow:var(--csh);
+}
+.sort-sel option{background:var(--bg1)}
+.btn-shfl{
+  display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:10px;
+  background:linear-gradient(135deg,var(--a),var(--aL));
+  color:#fff;font-size:12px;font-weight:700;letter-spacing:.3px;
+  box-shadow:0 3px 12px rgba(109,40,217,.35);
+}
+.btn-shfl:active{transform:scale(.96)}
+
+/* ═══════ GRID ═══════ */
+#grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:12px;padding:0 16px 120px;max-width:1400px;margin:0 auto;
+}
+@media(min-width:480px){#grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr))}}
+@media(min-width:768px){#grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}}
+@media(min-width:1024px){#grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+
+/* ═══════ CARD ═══════ */
+.card{
+  background:var(--bg1);border:1.5px solid var(--bdr);
+  border-radius:14px;overflow:hidden;cursor:pointer;
+  box-shadow:var(--csh);
+  transform:translateY(18px) scale(.97);opacity:0;
+  animation:cIn .55s cubic-bezier(.34,1.56,.64,1) forwards;
+  position:relative;
+}
+@keyframes cIn{to{transform:translateY(0) scale(1);opacity:1}}
+@media(hover:hover){.card:hover{box-shadow:var(--cshH);border-color:var(--bdr2)}}
+.card:active{transform:scale(.96)!important}
+
+.cov{position:relative;width:100%;padding-top:133%;overflow:hidden;background:var(--bg2)}
+.cov-img,.cov-skel{position:absolute;inset:0;width:100%;height:100%}
+.cov-img{object-fit:cover;opacity:0}
+.cov-img.ld{opacity:1;transition:opacity .4s}
+.cov-skel{
+  background:linear-gradient(110deg,var(--bg2) 30%,var(--bg3) 50%,var(--bg2) 70%);
+  background-size:200% 100%;animation:sk 1.5s ease-in-out infinite;
+}
+@keyframes sk{to{background-position:-200% 0}}
+.cov-ph{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:7px;background:var(--bg2);
+}
+.cov-ph-i{font-size:22px;color:var(--t3)}
+.cov-ph-t{font-size:10px;font-weight:600;color:var(--t3);text-align:center;padding:0 10px;line-height:1.5}
+.cov-ov{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.35) 35%,transparent 65%);
+  opacity:0;transition:opacity .25s;
+  display:flex;align-items:flex-end;padding:11px;
+}
+@media(hover:hover){.card:hover .cov-ov{opacity:1}}
+.ov-btn{
+  width:100%;padding:7px;border-radius:8px;
+  background:rgba(109,40,217,.92);color:#fff;
+  font-size:11px;font-weight:700;letter-spacing:.5px;
+  transform:translateY(8px);transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+@media(hover:hover){.card:hover .ov-btn{transform:translateY(0)}}
+.plt-dots{position:absolute;top:8px;left:8px;display:flex;gap:3px;flex-wrap:wrap}
+.pd{width:8px;height:8px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.cfoot{padding:10px;background:var(--bg1);border-top:1px solid var(--bdr)}
+.ctitle{
+  font-size:12px;font-weight:700;color:var(--t1);line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  margin-bottom:6px;letter-spacing:-.1px;
+}
+.cplts{display:flex;flex-wrap:wrap;gap:3px}
+.cplt{
+  font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;
+  letter-spacing:.3px;text-transform:uppercase;font-family:'JetBrains Mono',monospace;
+}
+.empty-g{grid-column:1/-1;text-align:center;padding:60px 20px}
+.empty-gi{font-size:42px;color:var(--t3);margin-bottom:12px}
+.empty-gt{font-size:18px;font-weight:800;color:var(--t2);margin-bottom:5px}
+.empty-gs{font-size:13px;color:var(--t3)}
+
+/* ═══════ PLATFORM COLORS ═══════ */
+.pd-steam{background:#4a90d9}.pd-epic{background:#888}.pd-nintendo{background:#e60012}
+.pd-xbox{background:#107c10}.pd-gog{background:#9b30b5}.pd-pc{background:#0078d4}
+.cplt-steam{background:rgba(74,144,217,.15);color:#4a90d9;border:1px solid rgba(74,144,217,.25)}
+.cplt-epic{background:rgba(160,160,160,.12);color:#aaa;border:1px solid rgba(160,160,160,.2)}
+.cplt-nintendo{background:rgba(230,0,18,.12);color:#f87171;border:1px solid rgba(230,0,18,.2)}
+.cplt-xbox{background:rgba(16,124,16,.12);color:#4ade80;border:1px solid rgba(16,124,16,.2)}
+.cplt-gog{background:rgba(155,48,181,.15);color:#c084fc;border:1px solid rgba(155,48,181,.25)}
+.cplt-pc{background:rgba(0,120,212,.12);color:#60a5fa;border:1px solid rgba(0,120,212,.2)}
+
+/* ═══════ HERO ═══════ */
+#hero{
+  position:relative;height:46vh;min-height:240px;max-height:500px;
+  overflow:hidden;margin-bottom:16px;
+}
+.hsl{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease;pointer-events:none}
+.hsl.on{opacity:1;pointer-events:all}
+.hbg{
+  position:absolute;inset:-12px;background-size:cover;background-position:center;
+  filter:blur(2px) brightness(.4);transform:scale(1.1);transition:transform 8s linear;
+}
+.hsl.on .hbg{transform:scale(1.02)}
+.hgr{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,var(--bg) 0%,rgba(0,0,0,.4) 40%,transparent 70%),
+             linear-gradient(to right,rgba(0,0,0,.7) 0%,transparent 55%);
+}
+.hcnt{
+  position:absolute;inset:0;display:flex;align-items:flex-end;
+  padding:20px 20px 24px;gap:14px;
+}
+.hcv{
+  width:70px;height:93px;border-radius:9px;object-fit:cover;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,.15);box-shadow:0 12px 40px rgba(0,0,0,.7);
+  opacity:0;transform:translateY(16px);transition:all .7s cubic-bezier(.34,1.56,.64,1) .3s;
+}
+.hsl.on .hcv{opacity:1;transform:translateY(0)}
+.hinfo{opacity:0;transform:translateX(-16px);transition:all .6s ease .2s}
+.hsl.on .hinfo{opacity:1;transform:translateX(0)}
+.h-ey{
+  font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:700;
+  color:var(--aX);margin-bottom:6px;font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:7px;
+}
+.h-ey::before{content:'';width:16px;height:1px;background:var(--aX)}
+.h-ttl{font-size:clamp(18px,5vw,30px);font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;letter-spacing:-.3px}
+.h-plts{display:flex;gap:5px;margin-bottom:12px}
+.h-btn{
+  display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:10px;
+  background:linear-gradient(135deg,var(--a),var(--aL));color:#fff;
+  font-size:12px;font-weight:700;letter-spacing:.5px;
+  box-shadow:0 4px 16px rgba(109,40,217,.5);
+}
+.h-btn:active{transform:scale(.97)}
+.hdots{position:absolute;bottom:10px;right:16px;display:flex;gap:4px}
+.hdot{width:18px;height:3px;border-radius:2px;background:rgba(255,255,255,.25);cursor:pointer;transition:all .3s;overflow:hidden;position:relative}
+.hdot.on{width:32px;background:rgba(255,255,255,.35)}
+.hdot-f{position:absolute;inset:0;background:#fff;border-radius:2px;transform:scaleX(0);transform-origin:left}
+.hdot.on .hdot-f{animation:hf 8s linear forwards}
+@keyframes hf{to{transform:scaleX(1)}}
+.hprev,.hnext{
+  position:absolute;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.15);
+  background:rgba(0,0,0,.4);backdrop-filter:blur(6px);
+  color:rgba(255,255,255,.7);font-size:12px;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10;
+}
+.hprev{left:12px}.hnext{right:12px}
+.hprev:hover,.hnext:hover{background:rgba(109,40,217,.5);color:#fff}
+
+/* ═══════ DETAIL SHEET ═══════ */
+#det{
+  position:fixed;inset:0;z-index:500;
+  display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+@media(min-width:700px){#det{align-items:center}}
+#det.on{opacity:1;pointer-events:all}
+#det-bd{position:absolute;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+#det-p{
+  position:relative;z-index:1;width:100%;max-height:94dvh;
+  background:var(--bg1);border-radius:24px 24px 0 0;
+  overflow:hidden;display:flex;flex-direction:column;
+  transform:translateY(64px);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 -4px 60px rgba(0,0,0,.4);
+}
+@media(min-width:700px){
+  #det-p{width:680px;max-width:96%;border-radius:24px;max-height:88dvh;transform:scale(.88) translateY(20px)}
+}
+#det.on #det-p{transform:none!important}
+.drag-h{display:flex;justify-content:center;padding:10px 0 4px;flex-shrink:0;cursor:grab}
+@media(min-width:700px){.drag-h{display:none}}
+.drag-bar{width:36px;height:4px;border-radius:2px;background:var(--bg3)}
+.det-sc{overflow-y:auto;flex:1}
+.det-sc::-webkit-scrollbar{display:none}
+.det-hero{position:relative;height:180px;overflow:hidden;flex-shrink:0}
+.det-hbg{
+  position:absolute;inset:-10px;background-size:cover;background-position:center;
+  filter:blur(3px) brightness(.3);transform:scale(1.12);transition:transform .5s;
+}
+#det.on .det-hbg{transform:scale(1.04)}
+.det-hgr{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,var(--bg1) 100%)}
+.det-hcnt{position:absolute;bottom:0;left:0;right:0;padding:16px 20px;display:flex;align-items:flex-end;gap:14px}
+.det-cov{
+  width:72px;height:96px;border-radius:10px;object-fit:cover;flex-shrink:0;
+  border:1.5px solid rgba(255,255,255,.12);box-shadow:0 8px 30px rgba(0,0,0,.7);
+}
+.det-h2{font-size:clamp(16px,4vw,22px);font-weight:800;letter-spacing:-.3px;line-height:1.2;margin-bottom:8px}
+.det-cl{
+  position:absolute;top:12px;right:12px;
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.8);font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+}
+.det-cl:hover{background:rgba(244,63,94,.3);color:#fff}
+.det-body{padding:16px 20px 40px;display:flex;flex-direction:column;gap:12px}
+.det-s{background:var(--bg2);border:1.5px solid var(--bdr);border-radius:16px;padding:16px}
+.det-st{
+  font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--t3);font-family:'JetBrains Mono',monospace;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.det-st::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.drow{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--bdr);font-size:13px;font-weight:600;
+}
+.drow:last-child{border:none}
+.dk{color:var(--t2);display:flex;align-items:center;gap:8px;font-size:13px}
+.dv{color:var(--t1);font-family:'JetBrains Mono',monospace;font-size:12px}
+.dv.g{color:var(--g)}.dv.a{color:var(--aX)}.dv.r{color:var(--r)}
+.dv-dim{color:var(--t3);text-decoration:line-through;font-size:10px;margin-right:4px}
+.deal-row{display:flex;align-items:center;gap:6px}
+.disc{font-size:9px;padding:2px 5px;border-radius:4px;background:rgba(16,185,129,.12);color:var(--g);font-weight:700;font-family:'JetBrains Mono',monospace}
+.buy-btn{
+  font-size:10px;padding:3px 9px;border-radius:6px;
+  background:rgba(109,40,217,.12);color:var(--aX);
+  border:1px solid rgba(109,40,217,.25);font-weight:700;
+  letter-spacing:.3px;font-family:'JetBrains Mono',monospace;
+}
+.buy-btn:hover{background:rgba(109,40,217,.25)}
+.pl{display:flex;flex-direction:column;gap:4px}
+.pl div{
+  height:36px;border-radius:8px;
+  background:linear-gradient(110deg,var(--bg3) 30%,var(--bg4) 50%,var(--bg3) 70%);
+  background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;
+}
+.det-link-list{display:flex;flex-direction:column;gap:6px}
+.det-a{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 13px;border-radius:12px;
+  border:1.5px solid var(--bdr);color:var(--t2);
+  font-size:13px;font-weight:600;
+}
+.det-a:hover,.det-a:active{background:var(--bg3);color:var(--t1)}
+.det-a i.ic{width:16px;text-align:center;color:var(--aX)}
+.det-a .ar{margin-left:auto;font-size:11px;color:var(--t3)}
+.desc-txt{font-size:13px;line-height:1.7;color:var(--t2);font-weight:500}
+.desc-ld{display:flex;flex-direction:column;gap:6px}
+.desc-ld span{
+  display:block;height:14px;border-radius:4px;
+  background:linear-gradient(110deg,var(--bg3) 30%,var(--bg4) 50%,var(--bg3) 70%);
+  background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;
+}
+.art-g{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.art-th{aspect-ratio:2/3;border-radius:8px;overflow:hidden;border:1.5px solid transparent}
+.art-th img{width:100%;height:100%;object-fit:cover}
+.art-th:hover,.art-th:active{border-color:var(--aX)}
+
+/* ═══════ SHUFFLE ═══════ */
+#shfl{
+  position:fixed;inset:0;z-index:600;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(18px);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+}
+#shfl.on{opacity:1;pointer-events:all}
+#shfl-card{
+  width:150px;border-radius:16px;overflow:hidden;
+  box-shadow:0 20px 80px rgba(109,40,217,.5);
+  transform:scale(.8) rotateY(20deg);transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+}
+#shfl.on #shfl-card{transform:scale(1) rotateY(0)}
+#shfl-img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block}
+#shfl-name{font-size:16px;font-weight:800;color:#fff;text-align:center;max-width:260px;line-height:1.3;letter-spacing:-.3px}
+.shfl-sub{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace}
+.shfl-acts{display:flex;gap:8px}
+.sh-btn{padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.sh-btn.p{background:linear-gradient(135deg,var(--a),var(--aL));color:#fff;box-shadow:0 4px 16px rgba(109,40,217,.4)}
+.sh-btn.g{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.12)}
+.sh-btn:active{transform:scale(.95)}
+
+/* ═══════ TOASTS ═══════ */
+#toasts{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:700;pointer-events:none;display:flex;flex-direction:column-reverse;gap:8px}
+.toast{
+  padding:10px 18px;border-radius:12px;font-size:13px;font-weight:700;color:#fff;
+  min-width:140px;text-align:center;white-space:nowrap;
+  opacity:0;transform:translateY(16px) scale(.9);
+  animation:tin .3s forwards,tout .3s 2.3s forwards;box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+@keyframes tin{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes tout{to{opacity:0;transform:translateY(-10px) scale(.9)}}
+.toast.ok{background:linear-gradient(135deg,#059669,#10b981)}
+.toast.er{background:linear-gradient(135deg,#dc2626,#f43f5e)}
+.toast.in{background:linear-gradient(135deg,var(--a),var(--aL))}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media(min-width:700px){
+  .hdr-row,.srch-wrap,#stats-row,#pf-wrap,#toolbar,#grid{padding-left:24px;padding-right:24px}
+  .hcnt{padding:28px 28px 28px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="hdr">
+  <div class="hdr-row">
+    <div class="logo">
+      <div class="logo-badge"><i class="fa-solid fa-gamepad"></i></div>
+      <div>
+        <div class="logo-name">LD</div>
+        <div class="logo-sub">Library</div>
+      </div>
+    </div>
+    <div class="hdr-sp"></div>
+    <div class="hdr-acts">
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+      <button class="icon-btn" onclick="toggleSrch()" id="srchBtn">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </div>
+  </div>
+  <div class="srch-wrap" id="srchWrap" style="display:none">
+    <div class="srch">
+      <i class="fa-solid fa-magnifying-glass si"></i>
+      <input type="text" id="q" placeholder="Search library…" autocomplete="off" oninput="onQ(this.value)">
+      <button class="srch-x" id="srchX" onclick="clearQ()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <button class="hprev" onclick="heroStep(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+  <button class="hnext" onclick="heroStep(1)"><i class="fa-solid fa-chevron-right"></i></button>
+  <div id="hslides"></div>
+  <div class="hdots" id="hdots"></div>
+</section>
+
+<!-- STATS -->
+<div id="stats-row"></div>
+
+<!-- PLATFORM FILTER -->
+<div id="pf-wrap"><div id="pf-inner"></div></div>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+  <div class="tb-info" id="tbinfo"></div>
+  <select class="sort-sel" id="srt" onchange="S.sort=this.value;render()">
+    <option value="az">A — Z</option>
+    <option value="za">Z — A</option>
+    <option value="plat">Platform</option>
+  </select>
+  <button class="btn-shfl" onclick="doShuffle()">
+    <i class="fa-solid fa-shuffle"></i> Random
+  </button>
+</div>
+
+<!-- GRID -->
+<main id="grid"></main>
+
+<!-- DETAIL SHEET -->
+<div id="det">
+  <div id="det-bd" onclick="closeDet()"></div>
+  <div id="det-p">
+    <div class="drag-h"><div class="drag-bar"></div></div>
+    <div class="det-hero">
+      <div class="det-hbg" id="dBg"></div>
+      <div class="det-hgr"></div>
+      <div class="det-hcnt">
+        <img class="det-cov" id="dCov" src="" alt="">
+        <div>
+          <h2 class="det-h2" id="dTitle"></h2>
+          <div id="dPlats"></div>
+        </div>
+      </div>
+      <button class="det-cl" onclick="closeDet()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="det-sc">
+      <div class="det-body">
+        <div class="det-s"><div class="det-st"><i class="fa-solid fa-align-left"></i> About</div><div id="dDesc"></div></div>
+        <div class="det-s"><div class="det-st"><i class="fa-solid fa-tag"></i> Best Prices</div><div id="dPrices"></div></div>
+        <div class="det-s"><div class="det-st"><i class="fa-solid fa-images"></i> Artwork</div><div class="art-g" id="dArt"></div></div>
+        <div class="det-s"><div class="det-st"><i class="fa-solid fa-circle-info"></i> Info</div><div id="dInfo"></div></div>
+        <div class="det-s"><div class="det-st"><i class="fa-solid fa-arrow-up-right-from-square"></i> Links</div><div class="det-link-list" id="dLinks"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SHUFFLE OVERLAY -->
+<div id="shfl" onclick="closeShfl()">
+  <div class="shfl-sub">Tonight we play…</div>
+  <div id="shfl-card"><img id="shfl-img" src="" alt=""></div>
+  <div id="shfl-name"></div>
+  <div class="shfl-acts" onclick="event.stopPropagation()">
+    <button class="sh-btn p" onclick="shflDet()"><i class="fa-solid fa-circle-info"></i> Details</button>
+    <button class="sh-btn g" onclick="doShuffle()"><i class="fa-solid fa-shuffle"></i> Again</button>
+    <button class="sh-btn g" onclick="closeShfl()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+// ║  ADD A GAME — just { title: "...", platforms: [...] }   ║
+// ║  Platforms: Steam · Epic · Nintendo · Xbox · GOG · PC   ║
+// ╚══════════════════════════════════════════════════════════╝
+const LIBRARY = [
+  { title:"112 Operator",                          platforms:["Epic"] },
+  { title:"A Night's Haunting: Source",            platforms:["Steam"] },
+  { title:"Airline Manager",                       platforms:["Steam"] },
+  { title:"Airplane Mode",                         platforms:["Steam"],  sid:673090  },
+  { title:"Along the Edge",                        platforms:["Steam"],  sid:525060  },
+  { title:"Among Us",                              platforms:["Nintendo"],sid:945360 },
+  { title:"Apex Legends",                          platforms:["Steam","Epic"],sid:1172470},
+  { title:"Arcadegeddon",                          platforms:["Epic"] },
+  { title:"ARK: Survival Evolved",                 platforms:["Steam"],  sid:346110  },
+  { title:"ARK: Survival Of The Fittest",          platforms:["Steam"],  sid:407530  },
+  { title:"Asphalt Legends Unite",                 platforms:["Steam","Nintendo"] },
+  { title:"Assassin's Creed II",                   platforms:["Steam"] },
+  { title:"Assassin's Creed IV Black Flag",        platforms:["PC"] },
+  { title:"Assassin's Creed Origins",              platforms:["Steam"],  sid:582160  },
+  { title:"Assassin's Creed Syndicate",            platforms:["Steam"],  sid:368500  },
+  { title:"Assassin's Creed The Ezio Collection",  platforms:["Nintendo"] },
+  { title:"Assassin's Creed The Rebel Collection", platforms:["Nintendo"] },
+  { title:"Astrea: Six Sided Oracles",             platforms:["Epic"] },
+  { title:"Battlefield 1",                         platforms:["Steam"],  sid:1238840 },
+  { title:"Behind the Frame",                      platforms:["Epic"] },
+  { title:"Bloons TD 6",                           platforms:["Epic"] },
+  { title:"Borderlands 2",                         platforms:["Steam"],  sid:49520   },
+  { title:"Botanicula",                            platforms:["Epic"] },
+  { title:"Bus Simulator 21 Next Stop",            platforms:["Epic"] },
+  { title:"Call of Duty",                          platforms:["Steam"] },
+  { title:"Call of Duty: WWII",                    platforms:["Steam"],  sid:476600  },
+  { title:"Cassette Beasts",                       platforms:["Epic"] },
+  { title:"Cat Quest",                             platforms:["Epic"] },
+  { title:"Cat Quest II",                          platforms:["Epic"] },
+  { title:"Chivalry 2",                            platforms:["Epic"] },
+  { title:"Chorus",                                platforms:["Steam"],  sid:1488840 },
+  { title:"CHUCHEL",                               platforms:["Epic"] },
+  { title:"Clone Drone in the Danger Zone",        platforms:["Epic"] },
+  { title:"Control",                               platforms:["Epic"] },
+  { title:"Counter-Strike 2",                      platforms:["Steam"],  sid:730     },
+  { title:"Crowalt: Traces of the Lost Colony",    platforms:["Steam"] },
+  { title:"DCS World",                             platforms:["Steam"],  sid:223750  },
+  { title:"Dead Island 2",                         platforms:["Epic"] },
+  { title:"Deadtime Defenders",                    platforms:["Epic"] },
+  { title:"DEATHLOOP",                             platforms:["Epic"] },
+  { title:"Decimated",                             platforms:["Epic"] },
+  { title:"Deliver At All Costs",                  platforms:["Epic"] },
+  { title:"Depths Of Horror: Mushroom Day",        platforms:["Steam"] },
+  { title:"Destiny 2",                             platforms:["Steam"],  sid:1085660 },
+  { title:"Divinity: Original Sin 2",              platforms:["GOG"] },
+  { title:"DREDGE",                                platforms:["Epic"] },
+  { title:"EarthKart",                             platforms:["Steam"] },
+  { title:"Electrician Simulator",                 platforms:["Epic"] },
+  { title:"Entropy: Zero 2",                       platforms:["Steam"],  sid:1583720 },
+  { title:"Escape Academy",                        platforms:["Epic"] },
+  { title:"Euro Truck Simulator 2",                platforms:["Steam"],  sid:227300  },
+  { title:"Evacuation",                            platforms:["Steam"] },
+  { title:"F1 Manager 2024",                       platforms:["Epic"] },
+  { title:"Fall Guys",                             platforms:["Nintendo"] },
+  { title:"Firestone",                             platforms:["Epic"] },
+  { title:"Fortnite",                              platforms:["Epic","Xbox","Nintendo"] },
+  { title:"FPV.SkyDive",                           platforms:["Steam"] },
+  { title:"Game of Thrones: Kingsroad",            platforms:["Epic"] },
+  { title:"Garden Story",                          platforms:["Epic"] },
+  { title:"GeoGuessr",                             platforms:["Steam"] },
+  { title:"Ghostrunner 2",                         platforms:["Epic"] },
+  { title:"Gigapocalypse",                         platforms:["Epic"] },
+  { title:"Goose Goose Duck",                      platforms:["Steam"],  sid:1568590 },
+  { title:"Grabity",                               platforms:["Steam"] },
+  { title:"Grapples Galore",                       platforms:["Steam"] },
+  { title:"GRID Autosport",                        platforms:["Nintendo"] },
+  { title:"Grounded",                              platforms:["Steam"],  sid:962130  },
+  { title:"Half-Life 2",                           platforms:["Steam"],  sid:220     },
+  { title:"Halo Infinite",                         platforms:["Steam"],  sid:1240440 },
+  { title:"Happy Game",                            platforms:["Epic"] },
+  { title:"Havendock",                             platforms:["Epic"] },
+  { title:"Hell Let Loose",                        platforms:["Epic"] },
+  { title:"Hogwarts Legacy",                       platforms:["Epic"] },
+  { title:"HOT WHEELS UNLEASHED",                  platforms:["Epic"] },
+  { title:"House Flipper",                         platforms:["Steam"],  sid:738370  },
+  { title:"Hyper Echelon",                         platforms:["Epic"] },
+  { title:"Idle Champions",                        platforms:["Epic"] },
+  { title:"Jotunnslayer: Hordes of Hel",           platforms:["Epic"] },
+  { title:"Jurassic World Evolution 2",            platforms:["Epic"] },
+  { title:"Keylocker",                             platforms:["Epic"] },
+  { title:"KILL KNIGHT",                           platforms:["Epic"] },
+  { title:"Kingdom Come: Deliverance",             platforms:["Steam","Epic"],sid:379430},
+  { title:"LEGO City Undercover",                  platforms:["Nintendo"] },
+  { title:"LEGO Star Wars",                        platforms:["Epic"] },
+  { title:"Limbo",                                 platforms:["Epic"] },
+  { title:"Mario Kart 8 Deluxe",                   platforms:["Nintendo"] },
+  { title:"Marvel Rivals",                         platforms:["Steam"],  sid:2767030 },
+  { title:"Microsoft Flight Simulator 2024",       platforms:["Steam","Xbox"],sid:2537590},
+  { title:"Minecraft",                             platforms:["Xbox","Nintendo"] },
+  { title:"Monument Valley 2",                     platforms:["Epic"] },
+  { title:"Mortal Shell",                          platforms:["Epic"] },
+  { title:"NARAKA: BLADEPOINT",                    platforms:["Steam"],  sid:1203220 },
+  { title:"No Man's Sky",                          platforms:["Steam"],  sid:275850  },
+  { title:"Ogu and the Secret Forest",             platforms:["Epic"] },
+  { title:"Once Human",                            platforms:["Steam"],  sid:2139460 },
+  { title:"One-Armed Robber",                      platforms:["Steam"] },
+  { title:"Orcs Must Die! 3",                      platforms:["Epic"] },
+  { title:"Overwatch 2",                           platforms:["Steam","Nintendo"],sid:2357570},
+  { title:"Phasmophobia",                          platforms:["Steam"],  sid:739630  },
+  { title:"PUBG: BATTLEGROUNDS",                   platforms:["Steam"],  sid:578080  },
+  { title:"Raft",                                  platforms:["Steam"],  sid:648800  },
+  { title:"Red Dead Redemption 2",                 platforms:["Steam"],  sid:1174180 },
+  { title:"Rocket League",                         platforms:["Nintendo"] },
+  { title:"Satisfactory",                          platforms:["Steam"],  sid:526870  },
+  { title:"Sea of Thieves",                        platforms:["Steam"],  sid:1172620 },
+  { title:"Sid Meier's Civilization VI",           platforms:["Epic"] },
+  { title:"Sifu",                                  platforms:["Epic"] },
+  { title:"Spore",                                 platforms:["Steam"],  sid:17390   },
+  { title:"STAR WARS: The Old Republic",           platforms:["Steam"],  sid:1286830 },
+  { title:"Stormworks: Build and Rescue",          platforms:["Steam"],  sid:573090  },
+  { title:"Styx: Master of Shadows",               platforms:["Epic"] },
+  { title:"Supermarket Together",                  platforms:["Steam"] },
+  { title:"Teardown",                              platforms:["Steam"],  sid:1167630 },
+  { title:"The First Descendant",                  platforms:["Steam"],  sid:2519060 },
+  { title:"The Witcher: Enhanced Edition",         platforms:["GOG"] },
+  { title:"Tiny Tina's Wonderlands",               platforms:["Epic"] },
+  { title:"Total War: THREE KINGDOMS",             platforms:["Epic"] },
+  { title:"Two Point Hospital",                    platforms:["Epic"] },
+  { title:"VALORANT",                              platforms:["Epic"] },
+  { title:"Vampire Survivors",                     platforms:["Epic"] },
+  { title:"War Thunder",                           platforms:["Steam"],  sid:236390  },
+  { title:"Warframe",                              platforms:["Steam"],  sid:230410  },
+  { title:"Warhammer: Vermintide 2",               platforms:["Steam"],  sid:552500  },
+  { title:"Wolfenstein II: The New Colossus",      platforms:["Steam"],  sid:612880  },
+  { title:"World of Tanks",                        platforms:["Steam"],  sid:286160  },
+  { title:"World War Z",                           platforms:["Epic"] },
+];
+
+// ── API KEYS ──────────────────────────────────────────────
+const K = {
+  STEAM:'181A2D78DA4A5D80A8F255CA03C718BB',
+  SGDB: 'c490788d36cf3763829d0c673139ccbf',
+  GGD:  '_b04S36jD-TUocPppK7YYKzind1Y2y2W',
+};
+
+// ── STEAM CDN (no key needed, just app ID) ────────────────
+const SC = {
+  cov:  id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900.jpg`,
+  hero: id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_hero.jpg`,
+  head: id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/header.jpg`,
+  store:id => `https://store.steampowered.com/app/${id}`,
+  api:  id => `https://store.steampowered.com/api/appdetails?appids=${id}&filters=basic,short_description`,
+};
+
+// ── PLACEHOLDER ───────────────────────────────────────────
+const PH = (() => {
+  const c=document.createElement('canvas');c.width=200;c.height=267;
+  const x=c.getContext('2d');
+  x.fillStyle='#0e0e1e';x.fillRect(0,0,200,267);
+  x.strokeStyle='rgba(124,58,237,.15)';x.lineWidth=1;x.strokeRect(.5,.5,199,266);
+  x.fillStyle='#333360';x.font='bold 40px sans-serif';x.textAlign='center';x.fillText('?',100,145);
+  return c.toDataURL();
+})();
+
+// ── CACHE ─────────────────────────────────────────────────
+const CK='ldg_v5',CTTL=7*864e5;
+const cg=t=>{try{const c=JSON.parse(localStorage.getItem(CK)||'{}'),e=c[t];if(e&&Date.now()-e.ts<CTTL)return e.d}catch{}return null};
+const cs=(t,d)=>{try{const c=JSON.parse(localStorage.getItem(CK)||'{}');c[t]={d,ts:Date.now()};localStorage.setItem(CK,JSON.stringify(c))}catch{}};
+
+// ── STATE ─────────────────────────────────────────────────
+const S={plat:'All',q:'',sort:'az',cur:null,shfl:null,hIdx:0,hTimer:null};
+const G=LIBRARY.map((g,i)=>({...g,idx:i,cover:null,hero:null,alts:[],loading:true,sgdbId:null}));
+const PCOLS={Steam:'#4a90d9',Epic:'#888',Nintendo:'#e60012',Xbox:'#107c10',GOG:'#9b30b5',PC:'#0078d4'};
+const PICONS={Steam:'fa-brands fa-steam',Epic:'fa-solid fa-bolt',Nintendo:'fa-solid fa-gamepad',Xbox:'fa-brands fa-xbox',GOG:'fa-solid fa-dragon',PC:'fa-solid fa-desktop'};
+const pc=p=>p.toLowerCase().replace(/[^a-z]/g,'');
+
+// ── THEME ─────────────────────────────────────────────────
+function toggleTheme(){
+  const d=document.documentElement;
+  const isDark=d.dataset.theme==='dark';
+  d.dataset.theme=isDark?'light':'dark';
+  document.getElementById('themeIcon').className=isDark?'fa-solid fa-sun':'fa-solid fa-moon';
+  document.getElementById('meta-theme').content=isDark?'#f2f1f8':'#07070e';
+  localStorage.setItem('ldtheme',d.dataset.theme);
+}
+function initTheme(){
+  const saved=localStorage.getItem('ldtheme');
+  const pref=window.matchMedia('(prefers-color-scheme:light)').matches?'light':'dark';
+  const t=saved||pref;
+  document.documentElement.dataset.theme=t;
+  document.getElementById('themeIcon').className=t==='dark'?'fa-solid fa-moon':'fa-solid fa-sun';
+  document.getElementById('meta-theme').content=t==='dark'?'#07070e':'#f2f1f8';
+}
+
+// ── SEARCH ────────────────────────────────────────────────
+let srchOpen=false;
+function toggleSrch(){
+  srchOpen=!srchOpen;
+  document.getElementById('srchWrap').style.display=srchOpen?'block':'none';
+  document.getElementById('srchBtn').classList.toggle('on',srchOpen);
+  if(srchOpen)setTimeout(()=>document.getElementById('q').focus(),80);
+}
+function onQ(v){S.q=v;document.getElementById('srchX').classList.toggle('show',!!v);render()}
+function clearQ(){S.q='';document.getElementById('q').value='';document.getElementById('srchX').classList.remove('show');render()}
+
+// ── STATS ─────────────────────────────────────────────────
+function buildStats(){
+  const cnt={};G.forEach(g=>g.platforms.forEach(p=>cnt[p]=(cnt[p]||0)+1));
+  const max=Math.max(...Object.values(cnt));
+  let h=`<div class="sc"><div class="sc-v" id="sc-tot">0</div><div class="sc-l">Total Games</div>
+    <div class="sc-bar"><div class="sc-fill" style="width:100%;background:linear-gradient(90deg,var(--a),var(--aX))"></div></div></div>`;
+  Object.entries(cnt).sort((a,b)=>b[1]-a[1]).forEach(([p,c])=>{
+    h+=`<div class="sc" onclick="setPlat('${p}')" title="Filter: ${p}">
+      <div class="sc-v">${c}</div><div class="sc-l">${p}</div>
+      <div class="sc-bar"><div class="sc-fill" style="width:${Math.round(c/max*100)}%;background:${PCOLS[p]||'#888'}"></div></div>
+    </div>`;
+  });
+  document.getElementById('stats-row').innerHTML=h;
+  animNum('sc-tot',G.length);
+}
+
+// ── PLATFORM FILTER ───────────────────────────────────────
+function buildPF(){
+  const cnt={};G.forEach(g=>g.platforms.forEach(p=>cnt[p]=(cnt[p]||0)+1));
+  let h=`<button class="pf-btn on" data-p="All" onclick="setPlat('All')">
+    <i class="fa-solid fa-layer-group" style="font-size:10px"></i> All <span style="opacity:.55;font-size:10px;font-family:'JetBrains Mono',monospace">${G.length}</span></button>`;
+  Object.entries(cnt).sort((a,b)=>b[1]-a[1]).forEach(([p,c])=>{
+    h+=`<button class="pf-btn" data-p="${p}" onclick="setPlat('${p}')">
+      <span class="pf-dot" style="background:${PCOLS[p]||'#888'}"></span>
+      ${p} <span style="opacity:.55;font-size:10px;font-family:'JetBrains Mono',monospace">${c}</span>
+    </button>`;
+  });
+  document.getElementById('pf-inner').innerHTML=h;
+}
+function setPlat(p){
+  S.plat=p;
+  document.querySelectorAll('.pf-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────
+function render(){
+  const q=S.q.toLowerCase();
+  let list=G.filter(g=>{
+    const mt=g.title.toLowerCase().includes(q);
+    const mp=S.plat==='All'||g.platforms.includes(S.plat);
+    return mt&&mp;
+  });
+  list.sort((a,b)=>{
+    if(S.sort==='az')return a.title.localeCompare(b.title);
+    if(S.sort==='za')return b.title.localeCompare(a.title);
+    if(S.sort==='plat')return(a.platforms[0]||'').localeCompare(b.platforms[0]||'');
+    return 0;
+  });
+  const el=document.getElementById('grid');
+  document.getElementById('tbinfo').innerHTML=`<strong>${list.length}</strong> / ${G.length}`;
+  if(!list.length){
+    el.innerHTML=`<div class="empty-g"><div class="empty-gi"><i class="fa-solid fa-magnifying-glass-minus"></i></div>
+      <div class="empty-gt">Nothing found</div><div class="empty-gs">Try a different search or filter</div></div>`;
+    return;
+  }
+  el.innerHTML='';
+  list.forEach((g,i)=>{
+    const src=g.cover||(g.sid?SC.cov(g.sid):null);
+    const dots=g.platforms.map(p=>`<span class="pd pd-${pc(p)}" title="${p}"></span>`).join('');
+    const tags=g.platforms.map(p=>`<span class="cplt cplt-${pc(p)}">${p}</span>`).join('');
+    const card=document.createElement('div');
+    card.className='card';card.id=`c${g.idx}`;
+    card.style.animationDelay=`${Math.min(i*.02,.5)}s`;
+    card.innerHTML=`
+      <div class="cov">
+        ${src
+          ?`<img class="cov-img" src="${src}" alt="${g.title}" loading="lazy" onload="this.classList.add('ld')" onerror="this.replaceWith(mkPh('${g.title.replace(/'/g,"\\'")}'))">`
+          :`<div class="cov-ph"><i class="fa-solid fa-image cov-ph-i"></i><div class="cov-ph-t">${g.title}</div></div>`}
+        <div class="plt-dots">${dots}</div>
+        <div class="cov-ov"><button class="ov-btn"><i class="fa-solid fa-circle-info"></i> Details</button></div>
+      </div>
+      <div class="cfoot">
+        <div class="ctitle">${g.title}</div>
+        <div class="cplts">${tags}</div>
+      </div>`;
+    card.addEventListener('click',()=>openDet(g.idx));
+    card.addEventListener('mousemove',tilt);
+    card.addEventListener('mouseleave',untilt);
+    el.appendChild(card);
+  });
+  // IntersectionObserver for stagger
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.style.visibility='visible';io.unobserve(e.target)}}),{threshold:.05});
+  el.querySelectorAll('.card').forEach(c=>io.observe(c));
+}
+
+function mkPh(t){
+  const d=document.createElement('div');d.className='cov-ph';
+  d.innerHTML=`<i class="fa-solid fa-image cov-ph-i"></i><div class="cov-ph-t">${t}</div>`;
+  return d;
+}
+
+// ── 3D TILT ───────────────────────────────────────────────
+function tilt(e){
+  if(window.innerWidth<700)return;
+  const r=e.currentTarget.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+  e.currentTarget.style.transform=`perspective(700px) rotateY(${x*11}deg) rotateX(${-y*11}deg) translateY(-5px) scale(1.02)`;
+}
+function untilt(e){e.currentTarget.style.transform=''}
+
+// ── HERO ──────────────────────────────────────────────────
+function buildHero(){
+  const picks=G.filter(g=>g.cover||g.sid).slice(0,8);
+  if(!picks.length)return;
+  const ws=document.getElementById('hslides'),ds=document.getElementById('hdots');
+  ws.innerHTML='';ds.innerHTML='';
+  picks.forEach((g,i)=>{
+    const bg=g.hero||(g.sid?SC.hero(g.sid):'')||g.cover||(g.sid?SC.cov(g.sid):'');
+    const cv=g.cover||(g.sid?SC.cov(g.sid):PH);
+    const tags=g.platforms.map(p=>`<span class="cplt cplt-${pc(p)}">${p}</span>`).join('');
+    const sl=document.createElement('div');
+    sl.className=`hsl${i===0?' on':''}`;
+    sl.innerHTML=`<div class="hbg" style="background-image:url('${bg}')"></div>
+      <div class="hgr"></div>
+      <div class="hcnt">
+        <img class="hcv" src="${cv}" alt="${g.title}" onerror="this.src=PH">
+        <div class="hinfo">
+          <div class="h-ey"><i class="fa-solid fa-star"></i> Featured</div>
+          <div class="h-ttl">${g.title}</div>
+          <div class="h-plts">${tags}</div>
+          <button class="h-btn" onclick="openDet(${g.idx})"><i class="fa-solid fa-circle-info"></i> View Details</button>
+        </div>
+      </div>`;
+    ws.appendChild(sl);
+    const dot=document.createElement('div');
+    dot.className=`hdot${i===0?' on':''}`;dot.innerHTML='<div class="hdot-f"></div>';
+    dot.onclick=()=>{goHero(i);clearInterval(S.hTimer);startHTimer()};
+    ds.appendChild(dot);
+  });
+  startHTimer();
+}
+function goHero(i){
+  const sl=document.querySelectorAll('.hsl'),dt=document.querySelectorAll('.hdot');
+  if(!sl[i])return;
+  sl.forEach(s=>s.classList.remove('on'));dt.forEach(d=>d.classList.remove('on'));
+  sl[i].classList.add('on');dt[i].classList.add('on');S.hIdx=i;
+}
+function heroStep(d){
+  const n=(S.hIdx+d+document.querySelectorAll('.hsl').length)%Math.max(1,document.querySelectorAll('.hsl').length);
+  goHero(n);clearInterval(S.hTimer);startHTimer();
+}
+function startHTimer(){
+  clearInterval(S.hTimer);
+  S.hTimer=setInterval(()=>goHero((S.hIdx+1)%Math.max(1,document.querySelectorAll('.hsl').length)),8000);
+}
+
+// ── ART LOADING ───────────────────────────────────────────
+async function fetchSGDB(g){
+  const cached=cg('sg_'+g.title);
+  if(cached){Object.assign(g,cached);g.loading=false;return}
+  try{
+    const sr=await fetch(`https://www.steamgriddb.com/api/v2/search/autocomplete/${encodeURIComponent(g.title)}`,
+      {headers:{Authorization:`Bearer ${K.SGDB}`},signal:AbortSignal.timeout(8000)});
+    if(!sr.ok)throw new Error(sr.status);
+    const sd=await sr.json();if(!sd.success||!sd.data?.length)throw new Error('nf');
+    const id=sd.data[0].id;g.sgdbId=id;
+    const [gr,hr]=await Promise.all([
+      fetch(`https://www.steamgriddb.com/api/v2/grids/game/${id}?dimensions=600x900&limit=8`,{headers:{Authorization:`Bearer ${K.SGDB}`},signal:AbortSignal.timeout(8000)}),
+      fetch(`https://www.steamgriddb.com/api/v2/heroes/game/${id}?limit=3`,{headers:{Authorization:`Bearer ${K.SGDB}`},signal:AbortSignal.timeout(8000)})
+    ]);
+    const [gd,hd]=await Promise.all([gr.json(),hr.json()]);
+    g.cover=gd.success&&gd.data?.[0]?.url||g.cover;
+    g.hero=hd.success&&hd.data?.[0]?.url||null;
+    g.alts=gd.success?gd.data?.map(x=>x.url)||[]:[g.cover].filter(Boolean);
+    cs('sg_'+g.title,{cover:g.cover,hero:g.hero,alts:g.alts,sgdbId:id});
+  }catch(e){}
+  g.loading=false;
+}
+function patchCard(g){
+  const el=document.getElementById(`c${g.idx}`);if(!el)return;
+  const old=el.querySelector('.cov-ph,.cov-skel');
+  if(!old||!g.cover)return;
+  const ni=document.createElement('img');
+  ni.className='cov-img';ni.loading='lazy';ni.alt=g.title;
+  ni.onload=()=>ni.classList.add('ld');
+  ni.onerror=()=>{ni.replaceWith(mkPh(g.title))};
+  ni.src=g.cover;old.replaceWith(ni);
+}
+async function loadAll(){
+  const BATCH=4,GAP=230;
+  for(let i=0;i<G.length;i+=BATCH){
+    await Promise.all(G.slice(i,i+BATCH).map(async g=>{await fetchSGDB(g);patchCard(g)}));
+    if(i===0)buildHero();
+    if(i+BATCH<G.length)await new Promise(r=>setTimeout(r,GAP));
+  }
+  buildHero();
+}
+
+// ── STEAM DESCRIPTION ─────────────────────────────────────
+async function steamDesc(g){
+  if(!g.sid)return null;
+  const k='desc_'+g.sid;const c=cg(k);if(c!==null)return c;
+  try{
+    const r=await fetch(SC.api(g.sid),{signal:AbortSignal.timeout(6000)});
+    const d=await r.json();
+    const app=d[g.sid];if(!app?.success)return null;
+    const desc=app.data?.short_description||null;
+    cs(k,desc);return desc;
+  }catch{return null}
+}
+
+// ── GG DEALS ──────────────────────────────────────────────
+async function fetchPrices(g){
+  const el=document.getElementById('dPrices');if(!el)return;
+  el.innerHTML=`<div class="pl"><div></div><div style="width:75%"></div><div style="width:55%"></div></div>`;
+  try{
+    const r=await fetch(`https://api.gg.deals/v1/games/?title=${encodeURIComponent(g.title)}&key=${K.GGD}`,{signal:AbortSignal.timeout(9000)});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    const items=d.data||d.games||[];if(!items.length)throw new Error('empty');
+    const deals=(items[0].prices||items[0].deals||items[0].shops||[]).slice(0,6);
+    if(!deals.length)throw new Error('no deals');
+    el.innerHTML=deals.map(deal=>{
+      const store=deal.shop?.name||deal.store_name||deal.store||'Store';
+      const price=deal.price||deal.price_new||deal.sale_price||'?';
+      const old=deal.price_old||deal.regular_price||null;
+      const pct=old&&price!=='?'?Math.round((1-parseFloat(price)/parseFloat(old))*100):0;
+      const url=deal.url||deal.shop?.url||`https://gg.deals/search/?title=${encodeURIComponent(g.title)}`;
+      return `<div class="drow">
+        <span class="dk"><i class="fa-solid fa-store" style="font-size:11px;color:var(--t3)"></i> ${store}</span>
+        <span class="deal-row">
+          ${old?`<span class="dv-dim">€${old}</span>`:''}
+          <span class="dv g">€${price}</span>
+          ${pct>0?`<span class="disc">-${pct}%</span>`:''}
+          <a class="buy-btn" href="${url}" target="_blank">BUY</a>
+        </span>
+      </div>`;
+    }).join('');
+  }catch{
+    el.innerHTML=`<div class="drow"><span class="dk" style="color:var(--t3);font-size:12px"><i class="fa-solid fa-triangle-exclamation"></i> Price data unavailable</span>
+      <a class="buy-btn" href="https://gg.deals/search/?title=${encodeURIComponent(g.title)}" target="_blank">Search</a></div>`;
+  }
+}
+
+// ── DETAIL SHEET ──────────────────────────────────────────
+async function openDet(idx){
+  const g=G[idx];if(!g)return;S.cur=idx;
+  const bg=g.hero||(g.sid?SC.hero(g.sid):'')||g.cover||(g.sid?SC.cov(g.sid):'');
+  const cv=g.cover||(g.sid?SC.cov(g.sid):PH);
+  document.getElementById('dBg').style.backgroundImage=`url('${bg}')`;
+  document.getElementById('dCov').src=cv;
+  document.getElementById('dCov').onerror=()=>{document.getElementById('dCov').src=PH};
+  document.getElementById('dTitle').textContent=g.title;
+  document.getElementById('dPlats').innerHTML=g.platforms.map(p=>`<span class="cplt cplt-${pc(p)}">${p}</span>`).join('');
+  // Info
+  const pc2={};G.forEach(x=>x.platforms.forEach(p=>pc2[p]=(pc2[p]||0)+1));
+  document.getElementById('dInfo').innerHTML=`
+    ${dr('fa-user','Owner','LD','a')}
+    ${dr('fa-gamepad','Platforms',g.platforms.join(' · '),'a')}
+    ${dr('fa-check-circle','Status','In Library','g')}
+    ${g.sid?dr('fa-brands fa-steam','Steam App ID',String(g.sid),''):''}
+    ${dr('fa-hashtag','Library Total',String(G.length),'')}
+    ${g.platforms.map(p=>dr(`fa-circle-dot`,`${p} games`,String(pc2[p]||1),'')).join('')}`;
+  // Description
+  const dd=document.getElementById('dDesc');
+  dd.innerHTML=`<div class="desc-ld"><span style="width:100%"></span><span style="width:85%"></span><span style="width:65%"></span></div>`;
+  steamDesc(g).then(desc=>{
+    if(desc)dd.innerHTML=`<div class="desc-txt">${desc}</div>`;
+    else dd.innerHTML=`<span style="color:var(--t3);font-size:12px">No description available</span>`;
+  });
+  // Artwork
+  const ae=document.getElementById('dArt');
+  const arts=g.alts.length?g.alts:(g.cover?[g.cover]:(g.sid?[SC.cov(g.sid)]:[PH]));
+  ae.innerHTML=arts.slice(0,8).map(u=>`<div class="art-th"><img src="${u}" loading="lazy" onerror="this.parentElement.remove()" alt="Art"></div>`).join('');
+  // Links
+  const links=[];
+  if(g.sid)links.push({href:SC.store(g.sid),icon:'fa-brands fa-steam',label:'Steam Store page'});
+  links.push({href:`https://gg.deals/search/?title=${encodeURIComponent(g.title)}`,icon:'fa-solid fa-tag',label:'Find deals on GG.deals'});
+  links.push({href:`https://www.steamgriddb.com/search/grids?term=${encodeURIComponent(g.title)}`,icon:'fa-solid fa-images',label:'Artwork on SteamGridDB'});
+  document.getElementById('dLinks').innerHTML=links.map(l=>`
+    <a class="det-a" href="${l.href}" target="_blank">
+      <i class="${l.icon} ic"></i> ${l.label}
+      <i class="fa-solid fa-arrow-up-right-from-square ar"></i>
+    </a>`).join('');
+  document.getElementById('det').classList.add('on');
+  document.body.style.overflow='hidden';
+  fetchPrices(g);
+  initSwipeClose();
+}
+function dr(icon,lbl,val,cls){
+  return `<div class="drow"><span class="dk"><i class="fa-solid ${icon}" style="font-size:11px;color:var(--t3);width:14px;text-align:center"></i> ${lbl}</span><span class="dv ${cls}">${val}</span></div>`;
+}
+function closeDet(){document.getElementById('det').classList.remove('on');document.body.style.overflow='';S.cur=null}
+
+function initSwipeClose(){
+  const p=document.getElementById('det-p'),h=document.querySelector('.drag-h');
+  if(!h)return;
+  let sy=0,drag=false;
+  const st=e=>{sy=e.touches?.[0]?.clientY||e.clientY;drag=true};
+  const mv=e=>{if(!drag)return;const dy=(e.touches?.[0]?.clientY||e.clientY)-sy;if(dy>0)p.style.transform=`translateY(${dy}px)`};
+  const en=e=>{drag=false;p.style.transform='';const dy=(e.changedTouches?.[0]?.clientY||e.clientY)-sy;if(dy>80)closeDet()};
+  h.addEventListener('touchstart',st,{passive:true});
+  h.addEventListener('touchmove',mv,{passive:true});
+  h.addEventListener('touchend',en,{passive:true});
+}
+
+// ── SHUFFLE ───────────────────────────────────────────────
+let shflG=null;
+function doShuffle(){
+  const pool=G.filter(g=>g.cover||g.sid);
+  if(!pool.length){toast('Art still loading…','in');return}
+  shflG=pool[Math.floor(Math.random()*pool.length)];
+  document.getElementById('shfl-img').src=shflG.cover||(shflG.sid?SC.cov(shflG.sid):PH);
+  document.getElementById('shfl-img').onerror=()=>{document.getElementById('shfl-img').src=PH};
+  document.getElementById('shfl-name').textContent=shflG.title;
+  document.getElementById('shfl').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeShfl(){document.getElementById('shfl').classList.remove('on');document.body.style.overflow=''}
+function shflDet(){closeShfl();if(shflG)openDet(shflG.idx)}
+
+// ── HELPERS ───────────────────────────────────────────────
+function animNum(id,t){
+  const el=document.getElementById(id);if(!el)return;
+  let n=0,step=Math.max(1,Math.ceil(t/40));
+  const tm=setInterval(()=>{n=Math.min(n+step,t);el.textContent=n;if(n>=t)clearInterval(tm)},25);
+}
+function toast(msg,type='in'){
+  const w=document.getElementById('toasts'),t=document.createElement('div');
+  t.className=`toast ${type}`;t.textContent=msg;w.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('shfl').classList.contains('on'))closeShfl();
+    else if(S.cur!==null)closeDet();
+  }
+  if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName))return;
+  if(e.key==='/')e.preventDefault(),toggleSrch();
+  if(e.key==='r'||e.key==='R')doShuffle();
+  if(e.key==='ArrowLeft')heroStep(-1);
+  if(e.key==='ArrowRight')heroStep(1);
+});
+
+// ── BOOT ──────────────────────────────────────────────────
+initTheme();
+buildStats();
+buildPF();
+render();
+buildHero();
+loadAll();
+</script>
+</body>
+</html>
