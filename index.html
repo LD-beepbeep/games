@@ -430,7 +430,6 @@ a{text-decoration:none;color:inherit}
 </head>
 <body>
 
-<!-- HEADER -->
 <header id="hdr">
   <div class="hdr-row">
     <div class="logo">
@@ -459,7 +458,6 @@ a{text-decoration:none;color:inherit}
   </div>
 </header>
 
-<!-- HERO -->
 <section id="hero">
   <button class="hprev" onclick="heroStep(-1)"><i class="fa-solid fa-chevron-left"></i></button>
   <button class="hnext" onclick="heroStep(1)"><i class="fa-solid fa-chevron-right"></i></button>
@@ -467,13 +465,10 @@ a{text-decoration:none;color:inherit}
   <div class="hdots" id="hdots"></div>
 </section>
 
-<!-- STATS -->
 <div id="stats-row"></div>
 
-<!-- PLATFORM FILTER -->
 <div id="pf-wrap"><div id="pf-inner"></div></div>
 
-<!-- TOOLBAR -->
 <div id="toolbar">
   <div class="tb-info" id="tbinfo"></div>
   <select class="sort-sel" id="srt" onchange="S.sort=this.value;render()">
@@ -486,10 +481,8 @@ a{text-decoration:none;color:inherit}
   </button>
 </div>
 
-<!-- GRID -->
 <main id="grid"></main>
 
-<!-- DETAIL SHEET -->
 <div id="det">
   <div id="det-bd" onclick="closeDet()"></div>
   <div id="det-p">
@@ -518,7 +511,6 @@ a{text-decoration:none;color:inherit}
   </div>
 </div>
 
-<!-- SHUFFLE OVERLAY -->
 <div id="shfl" onclick="closeShfl()">
   <div class="shfl-sub">Tonight we play…</div>
   <div id="shfl-card"><img id="shfl-img" src="" alt=""></div>
@@ -673,6 +665,7 @@ const LIBRARY = [
   { title:"World of Tanks",                        platforms:["Steam"],         sid:286160  },
   { title:"World War Z",                           platforms:["Epic", "Steam"], sid:699130  },
 ];
+
 // ── API KEYS ──────────────────────────────────────────────
 const K = {
   STEAM:'181A2D78DA4A5D80A8F255CA03C718BB',
@@ -680,7 +673,11 @@ const K = {
   GGD:  '_b04S36jD-TUocPppK7YYKzind1Y2y2W',
 };
 
-// ── STEAM CDN (no key needed, just app ID) ────────────────
+// ── PROXY TO BYPASS CORS ──────────────────────────────────
+// Steam blocks client-side API requests. We wrap the URL in this free proxy.
+const PROXY = 'https://api.allorigins.win/raw?url=';
+
+// ── STEAM CDN ─────────────────────────────────────────────
 const SC = {
   cov:  id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900.jpg`,
   hero: id => `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_hero.jpg`,
@@ -700,7 +697,7 @@ const PH = (() => {
 })();
 
 // ── CACHE ─────────────────────────────────────────────────
-const CK='ldg_v5',CTTL=7*864e5;
+const CK='ldg_v6',CTTL=7*864e5;
 const cg=t=>{try{const c=JSON.parse(localStorage.getItem(CK)||'{}'),e=c[t];if(e&&Date.now()-e.ts<CTTL)return e.d}catch{}return null};
 const cs=(t,d)=>{try{const c=JSON.parse(localStorage.getItem(CK)||'{}');c[t]={d,ts:Date.now()};localStorage.setItem(CK,JSON.stringify(c))}catch{}};
 
@@ -821,7 +818,6 @@ function render(){
     card.addEventListener('mouseleave',untilt);
     el.appendChild(card);
   });
-  // IntersectionObserver for stagger
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.style.visibility='visible';io.unobserve(e.target)}}),{threshold:.05});
   el.querySelectorAll('.card').forEach(c=>io.observe(c));
 }
@@ -892,6 +888,7 @@ async function fetchSGDB(g){
   const cached=cg('sg_'+g.title);
   if(cached){Object.assign(g,cached);g.loading=false;return}
   try{
+    // SGDB natively supports CORS so we can hit it directly
     const sr=await fetch(`https://www.steamgriddb.com/api/v2/search/autocomplete/${encodeURIComponent(g.title)}`,
       {headers:{Authorization:`Bearer ${K.SGDB}`},signal:AbortSignal.timeout(8000)});
     if(!sr.ok)throw new Error(sr.status);
@@ -929,12 +926,13 @@ async function loadAll(){
   buildHero();
 }
 
-// ── STEAM DESCRIPTION ─────────────────────────────────────
+// ── STEAM DESCRIPTION (PROXIED) ───────────────────────────
 async function steamDesc(g){
   if(!g.sid)return null;
   const k='desc_'+g.sid;const c=cg(k);if(c!==null)return c;
   try{
-    const r=await fetch(SC.api(g.sid),{signal:AbortSignal.timeout(6000)});
+    // Wrapped in CORS proxy since Steam API strictly blocks browser fetches
+    const r=await fetch(PROXY + encodeURIComponent(SC.api(g.sid)), {signal:AbortSignal.timeout(8000)});
     const d=await r.json();
     const app=d[g.sid];if(!app?.success)return null;
     const desc=app.data?.short_description||null;
@@ -942,17 +940,20 @@ async function steamDesc(g){
   }catch{return null}
 }
 
-// ── GG DEALS ──────────────────────────────────────────────
+// ── GG DEALS / CHEAPSHARK FALLBACK ────────────────────────
 async function fetchPrices(g){
   const el=document.getElementById('dPrices');if(!el)return;
   el.innerHTML=`<div class="pl"><div></div><div style="width:75%"></div><div style="width:55%"></div></div>`;
   try{
-    const r=await fetch(`https://api.gg.deals/v1/games/?title=${encodeURIComponent(g.title)}&key=${K.GGD}`,{signal:AbortSignal.timeout(9000)});
-    if(!r.ok)throw new Error(r.status);
+    // Try the provided GG Deals Endpoint (wrapped in CORS proxy)
+    const ggUrl = `https://api.gg.deals/v1/games/?title=${encodeURIComponent(g.title)}&key=${K.GGD}`;
+    const r=await fetch(PROXY + encodeURIComponent(ggUrl), {signal:AbortSignal.timeout(8000)});
+    if(!r.ok) throw new Error('gg_failed');
     const d=await r.json();
     const items=d.data||d.games||[];if(!items.length)throw new Error('empty');
     const deals=(items[0].prices||items[0].deals||items[0].shops||[]).slice(0,6);
     if(!deals.length)throw new Error('no deals');
+    
     el.innerHTML=deals.map(deal=>{
       const store=deal.shop?.name||deal.store_name||deal.store||'Store';
       const price=deal.price||deal.price_new||deal.sale_price||'?';
@@ -970,8 +971,35 @@ async function fetchPrices(g){
       </div>`;
     }).join('');
   }catch{
-    el.innerHTML=`<div class="drow"><span class="dk" style="color:var(--t3);font-size:12px"><i class="fa-solid fa-triangle-exclamation"></i> Price data unavailable</span>
-      <a class="buy-btn" href="https://gg.deals/search/?title=${encodeURIComponent(g.title)}" target="_blank">Search</a></div>`;
+    // Fallback logic to CheapShark API (100% free and native CORS support)
+    try {
+      const csRes = await fetch(`https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(g.title)}&limit=1`);
+      const csData = await csRes.json();
+      if(!csData.length) throw new Error('cs_empty');
+      const dealRes = await fetch(`https://www.cheapshark.com/api/1.0/games?id=${csData[0].gameID}`);
+      const dealData = await dealRes.json();
+      if(!dealData.deals?.length) throw new Error('no_cs_deals');
+
+      el.innerHTML = dealData.deals.slice(0, 6).map(deal => {
+        const storeMap = { "1":"Steam", "25":"Epic Games", "7":"GOG", "11":"Humble Store", "3":"GreenManGaming" };
+        const store = storeMap[deal.storeID] || `Store #${deal.storeID}`;
+        const price = deal.price;
+        const old = deal.retailPrice;
+        const pct = Math.round((1 - parseFloat(price)/parseFloat(old)) * 100);
+        return `<div class="drow">
+          <span class="dk"><i class="fa-solid fa-store" style="font-size:11px;color:var(--t3)"></i> ${store}</span>
+          <span class="deal-row">
+            ${old && old !== price ? `<span class="dv-dim">€${old}</span>` : ''}
+            <span class="dv g">€${price}</span>
+            ${pct > 0 ? `<span class="disc">-${pct}%</span>` : ''}
+            <a class="buy-btn" href="https://www.cheapshark.com/redirect?dealID=${deal.dealID}" target="_blank">BUY</a>
+          </span>
+        </div>`;
+      }).join('');
+    } catch(err2) {
+      el.innerHTML=`<div class="drow"><span class="dk" style="color:var(--t3);font-size:12px"><i class="fa-solid fa-triangle-exclamation"></i> Price data unavailable</span>
+        <a class="buy-btn" href="https://gg.deals/search/?title=${encodeURIComponent(g.title)}" target="_blank">Search</a></div>`;
+    }
   }
 }
 
@@ -985,6 +1013,7 @@ async function openDet(idx){
   document.getElementById('dCov').onerror=()=>{document.getElementById('dCov').src=PH};
   document.getElementById('dTitle').textContent=g.title;
   document.getElementById('dPlats').innerHTML=g.platforms.map(p=>`<span class="cplt cplt-${pc(p)}">${p}</span>`).join('');
+  
   // Info
   const pc2={};G.forEach(x=>x.platforms.forEach(p=>pc2[p]=(pc2[p]||0)+1));
   document.getElementById('dInfo').innerHTML=`
@@ -994,6 +1023,7 @@ async function openDet(idx){
     ${g.sid?dr('fa-brands fa-steam','Steam App ID',String(g.sid),''):''}
     ${dr('fa-hashtag','Library Total',String(G.length),'')}
     ${g.platforms.map(p=>dr(`fa-circle-dot`,`${p} games`,String(pc2[p]||1),'')).join('')}`;
+  
   // Description
   const dd=document.getElementById('dDesc');
   dd.innerHTML=`<div class="desc-ld"><span style="width:100%"></span><span style="width:85%"></span><span style="width:65%"></span></div>`;
@@ -1001,10 +1031,12 @@ async function openDet(idx){
     if(desc)dd.innerHTML=`<div class="desc-txt">${desc}</div>`;
     else dd.innerHTML=`<span style="color:var(--t3);font-size:12px">No description available</span>`;
   });
+  
   // Artwork
   const ae=document.getElementById('dArt');
   const arts=g.alts.length?g.alts:(g.cover?[g.cover]:(g.sid?[SC.cov(g.sid)]:[PH]));
   ae.innerHTML=arts.slice(0,8).map(u=>`<div class="art-th"><img src="${u}" loading="lazy" onerror="this.parentElement.remove()" alt="Art"></div>`).join('');
+  
   // Links
   const links=[];
   if(g.sid)links.push({href:SC.store(g.sid),icon:'fa-brands fa-steam',label:'Steam Store page'});
@@ -1020,9 +1052,11 @@ async function openDet(idx){
   fetchPrices(g);
   initSwipeClose();
 }
+
 function dr(icon,lbl,val,cls){
   return `<div class="drow"><span class="dk"><i class="fa-solid ${icon}" style="font-size:11px;color:var(--t3);width:14px;text-align:center"></i> ${lbl}</span><span class="dv ${cls}">${val}</span></div>`;
 }
+
 function closeDet(){document.getElementById('det').classList.remove('on');document.body.style.overflow='';S.cur=null}
 
 function initSwipeClose(){
